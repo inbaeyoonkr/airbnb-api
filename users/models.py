@@ -7,7 +7,7 @@ class User(AbstractUser):
     """ User Model Definition """
 
     avatar = models.ImageField(upload_to="avatars", blank=True)
-    superhost = models.BooleanField(default=False)
+    is_superhost = models.BooleanField(default=False)
     favs = models.ManyToManyField("rooms.Room", related_name="favs")
 
     def room_count(self):
