@@ -27,4 +27,3 @@ class RoomAdmin(admin.ModelAdmin):
     )
 
     ordering = ("-pk",)
-
