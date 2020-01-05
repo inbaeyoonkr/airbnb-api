@@ -25,3 +25,6 @@ class RoomAdmin(admin.ModelAdmin):
         "name",
         "photo_number",
     )
+
+    ordering = ("-pk",)
+
