@@ -21,9 +21,6 @@ class RoomAdmin(admin.ModelAdmin):
 
     inlines = (PhotoInline,)
 
-    list_display = (
-        "name",
-        "photo_number",
-    )
+    list_display = ("name", "photo_number", "pk")
 
     ordering = ("-pk",)

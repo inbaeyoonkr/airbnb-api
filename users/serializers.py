@@ -30,3 +30,17 @@ class ReadUserSerializer(serializers.ModelSerializer):
             "date_joined",
             "favs",
         )
+
+
+class WriteUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            "username",
+            "first_name",
+            "last_name",
+            "email",
+        )
+
+    def validate_username(self, username):
+        return username.upper()
