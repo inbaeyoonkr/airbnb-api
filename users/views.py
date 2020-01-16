@@ -1,14 +1,11 @@
 import jwt
 from django.contrib.auth import authenticate
 from django.conf import settings
-from rest_framework.decorators import api_view
-from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import permissions
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.permissions import IsAuthenticated
 from .models import User
 from rooms.models import Room
 from rooms.serializers import RoomSerializer
@@ -23,7 +20,11 @@ class UsersViewSet(ModelViewSet):
     def get_permissions(self):
         if self.action == "list":
             permission_classes = [permissions.IsAdminUser]
-        elif self.action == "create" or self.action == "retrieve":
+        elif (
+            self.action == "create"
+            or self.action == "retrieve"
+            or self.action == "favs"
+        ):
             permission_classes = [permissions.AllowAny]
         else:
             permission_classes = [IsSelf]
@@ -45,17 +46,16 @@ class UsersViewSet(ModelViewSet):
             else:
                 return Response(status=status.HTTP_401_UNAUTHORIZED)
 
-
-class FavsView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        serializer = RoomSerializer(request.user.favs.all(), many=True).data
+    @action(detail=True)
+    def favs(self, request, pk):
+        user = self.get_object()
+        serializer = RoomSerializer(user.favs.all(), many=True).data
         return Response(serializer, status=status.HTTP_200_OK)
 
-    def put(self, request):
-        pk = request.data.get("pk")
-        user = request.user
+    @favs.mapping.put
+    def toggle_favs(self, request, pk):
+        user = User.objects.get(pk=pk)
+        pk = request.data.get("pk", None)
         if pk is not None:
             try:
                 room = Room.objects.get(pk=pk)
@@ -63,11 +63,7 @@ class FavsView(APIView):
                     user.favs.remove(room)
                 else:
                     user.favs.add(room)
-                return Response(
-                    RoomSerializer(user.favs.all(), many=True).data, status.HTTP_200_OK,
-                )
+                return Response()
             except Room.DoesNotExist:
                 pass
-        else:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-
+        return Response(status=status.HTTP_400_BAD_REQUEST)
