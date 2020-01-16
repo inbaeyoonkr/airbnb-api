@@ -4,7 +4,7 @@ from users.serializers import RelatedUserSerializer
 
 
 class RoomSerializer(serializers.ModelSerializer):
-    user = RelatedUserSerializer()
+    user = RelatedUserSerializer(read_only=True)
     is_fav = serializers.SerializerMethodField()
 
     class Meta:
