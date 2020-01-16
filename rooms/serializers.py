@@ -30,3 +30,8 @@ class RoomSerializer(serializers.ModelSerializer):
             if user.is_authenticated:
                 return obj in user.favs.all()
         return False
+
+    def create(self, validated_data):
+        user = self.context.get("request").user
+        room = Room.objects.create(**validated_data, user=user)
+        return room
